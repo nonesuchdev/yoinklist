@@ -46,7 +46,7 @@ export async function searchTidalTrack(
     countryCode: 'US',
     include: 'tracks,albums',
   }).toString()
-  const data = await tidalFetch(
+  const data: any = await tidalFetch(
     `/searchResults/${encodeURIComponent(query)}?${params}`,
     'GET',
     undefined,
@@ -76,7 +76,7 @@ export async function createTidalPlaylist(
       },
     },
   }
-  const data = await tidalFetch('/playlists', 'POST', body, accessToken)
+  const data: any = await tidalFetch('/playlists', 'POST', body, accessToken)
   return data.data.id
 }
 

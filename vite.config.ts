@@ -1,16 +1,16 @@
 import { defineConfig } from 'vite'
-// import { devtools } from '@tanstack/devtools-vite'
+import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { cloudflare } from '@cloudflare/vite-plugin'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
-// import { nitro } from 'nitro/vite'
+import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
   plugins: [
-    // devtools(),
-    // nitro(),
+    devtools(),
+    nitro(),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),

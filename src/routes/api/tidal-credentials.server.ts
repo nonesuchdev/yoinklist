@@ -9,15 +9,13 @@ export const checkTidalCredentials = createServerFn()
   }))
   .handler(async ({ data }) => {
     const { sessionId } = data
-    let credentialsProvider
-    if (typeof env !== 'undefined' && env.SESSIONS_KV && sessionId) {
-      credentialsProvider = new KVCredentialsProvider(
-        env.SESSIONS_KV,
-        sessionId,
-      )
-    } else {
-      throw new Error('SESSIONS_KV binding or sessionId missing')
+    if (!sessionId) {
+      throw new Error('sessionId missing')
     }
+    const credentialsProvider = new KVCredentialsProvider(
+      env.SESSIONS_KV,
+      sessionId,
+    )
     const creds = await credentialsProvider.getCredentials()
     return {
       isLoggedIn: !!creds?.access_token && !!creds?.user_id,

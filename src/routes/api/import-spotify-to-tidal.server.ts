@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-// @ts-ignore: cloudflare:workers
 import { env } from 'cloudflare:workers'
 import {
   addTracksToTidalPlaylist,
@@ -57,8 +56,8 @@ export const importSpotifyToTidal = createServerFn()
 
     // Credentials provider for session
     const sessionId = data.sessionId
-    if (!env?.SESSIONS_KV || !sessionId) {
-      throw new Error('SESSIONS_KV binding or sessionId missing')
+    if (!sessionId) {
+      throw new Error('sessionId missing')
     }
     const credentialsProvider = new KVCredentialsProvider(
       env.SESSIONS_KV,

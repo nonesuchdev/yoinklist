@@ -39,11 +39,7 @@ export const tidalFinalizeLogin = createServerFn()
     })
     // Automated credentials provider selection for local/Workers
     let credentialsProvider
-    if (typeof env !== 'undefined' && env.SESSIONS_KV && sessionId) {
-      console.log(
-        '[tidalFinalizeLogin] Using KVCredentialsProvider for session:',
-        JSON.stringify(sessionId),
-      )
+    if (sessionId) {
       credentialsProvider = new KVCredentialsProvider(
         env.SESSIONS_KV,
         sessionId,
@@ -51,6 +47,6 @@ export const tidalFinalizeLogin = createServerFn()
       await credentialsProvider.setCredentials(tokenResponse)
       return { success: true }
     } else {
-      throw new Error('SESSIONS_KV binding or sessionId missing')
+      throw new Error('sessionId missing')
     }
   })
