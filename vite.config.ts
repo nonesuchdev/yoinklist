@@ -1,17 +1,24 @@
 import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
+// import { devtools } from '@tanstack/devtools-vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
+// import { nitro } from 'nitro/vite'
 
-import { fileURLToPath, URL } from 'node:url'
-import { nitro } from 'nitro/vite'
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [devtools(), nitro(), viteReact(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
+const config = defineConfig({
+  plugins: [
+    // devtools(),
+    // nitro(),
+    viteTsConfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+  ],
 })
+
+export default config
