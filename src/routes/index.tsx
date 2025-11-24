@@ -9,6 +9,9 @@ import {
 } from 'lucide-react'
 import { useServerFn } from '@tanstack/react-start'
 import { getOrCreateSessionId } from '../lib/sessionId'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Card, CardContent } from '../components/ui/card'
 import {
   checkTidalCredentials,
   importSpotifyToTidal,
@@ -182,98 +185,99 @@ function Home() {
         </span>
       </h1>
       {!isLoggedIn ? (
-        <button
+        <Button
           onClick={handleLogin}
-          className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          type="button"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg flex items-center gap-2 min-w-[180px]"
           disabled={loading}
         >
           {loading ? (
             <>
-              <LoaderPinwheel className="animate-spin w-5 h-5 mr-2" /> Loading
+              <LoaderPinwheel className="animate-spin w-5 h-5" /> Loading
             </>
           ) : (
             <>
               <LogIn className="w-5 h-5" /> Login to Tidal
             </>
           )}
-        </button>
+        </Button>
       ) : (
-        <div className="text-center px-8">
-          <label className="block mb-2 text-lg font-medium">
-            Link to Spotify Playlist
-          </label>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Enter Spotify playlist or track URL"
-            className="mb-4 px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 w-96"
-          />
-          <div className="flex gap-4 justify-center mt-4">
-            <button
-              onClick={handleCreatePlaylist}
-              disabled={importLoading}
-              className="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-lg cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[120px]"
-            >
-              {importLoading ? (
-                <>
-                  <LoaderPinwheel className="animate-spin w-5 h-5" />{' '}
-                  Importing...
-                </>
-              ) : (
-                <>
-                  <Download className="w-5 h-5" /> Yoink
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-lg cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[120px]"
-            >
-              <LogOut className="w-5 h-5" /> Logout
-            </button>
-          </div>
-          {success && importedTracks.length > 0 && (
-            <div className="mt-8">
-              <div className="text-white mb-4">
-                <div className="text-xl font-bold">
-                  Created "{playlistTitle.trim()}"
-                </div>
-                {copiedCount < totalCount ? (
-                  <div>
-                    Copied {copiedCount} out of {totalCount}, some tracks may
-                    not be available on Tidal.
-                  </div>
+        <Card className="w-full max-w-md bg-gray-800 text-white border-gray-700">
+          <CardContent className="pt-6 px-8">
+            <label className="block mb-2 text-lg font-medium">
+              Link to Spotify Playlist
+            </label>
+            <Input
+              ref={inputRef}
+              placeholder="Enter Spotify playlist or track URL"
+            />
+            <div className="flex gap-4 justify-center mt-4">
+              <Button
+                onClick={handleCreatePlaylist}
+                disabled={importLoading}
+                className="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-lg flex items-center gap-2 min-w-[120px]"
+              >
+                {importLoading ? (
+                  <>
+                    <LoaderPinwheel className="animate-spin w-5 h-5" />{' '}
+                    Importing...
+                  </>
                 ) : (
-                  <div>All {totalCount} tracks copied successfully!</div>
+                  <>
+                    <Download className="w-5 h-5" /> Yoink
+                  </>
                 )}
-              </div>
-              <div className="bg-gray-800 p-4 rounded-lg max-w-md mx-auto">
-                {importedTracks.map((track, index) => {
-                  const [artist, title] = track.name.split(' - ')
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center mb-2 last:mb-0"
-                    >
-                      {track.cover && (
-                        <img
-                          src={track.cover}
-                          alt="Album cover"
-                          className="w-12 h-12 rounded mr-3"
-                        />
-                      )}
-                      <div className="text-left">
-                        <div className="text-white font-semibold">{title}</div>
-                        <div className="text-gray-400 text-sm">{artist}</div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              </Button>
+              <Button
+                onClick={handleLogout}
+                className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-lg flex items-center gap-2 min-w-[120px]"
+              >
+                <LogOut className="w-5 h-5" /> Logout
+              </Button>
             </div>
-          )}
-        </div>
+            {success && importedTracks.length > 0 && (
+              <div className="mt-8">
+                <div className="text-white mb-4">
+                  <div className="text-xl font-bold">
+                    Created "{playlistTitle.trim()}"
+                  </div>
+                  {copiedCount < totalCount ? (
+                    <div>
+                      Copied {copiedCount} out of {totalCount}, some tracks may
+                      not be available on Tidal.
+                    </div>
+                  ) : (
+                    <div>All {totalCount} tracks copied successfully!</div>
+                  )}
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg max-w-md mx-auto">
+                  {importedTracks.map((track, index) => {
+                    const [artist, title] = track.name.split(' - ')
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center mb-2 last:mb-0"
+                      >
+                        {track.cover && (
+                          <img
+                            src={track.cover}
+                            alt="Album cover"
+                            className="w-12 h-12 rounded mr-3"
+                          />
+                        )}
+                        <div className="text-left">
+                          <div className="text-white font-semibold">
+                            {title}
+                          </div>
+                          <div className="text-gray-400 text-sm">{artist}</div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
       {error && (
         <div className="mt-4 text-red-400 flex items-center gap-2">
