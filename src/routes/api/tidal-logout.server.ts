@@ -9,8 +9,8 @@ export const tidalLogoutServer = createServerFn()
   }))
   .handler(async ({ data }) => {
     const sessionId = data.sessionId
-    if (!env?.SESSIONS_KV || !sessionId) {
-      throw new Error('SESSIONS_KV binding or sessionId missing')
+    if (!sessionId) {
+      throw new Error('sessionId missing')
     }
     const credentialsProvider = new KVCredentialsProvider(
       env.SESSIONS_KV,

@@ -21,6 +21,5 @@ export const checkTidalCredentials = createServerFn()
       isLoggedIn: !!creds?.access_token && !!creds?.user_id,
       token: creds?.access_token,
       userId: creds?.user_id,
-      debug: creds,
     }
   })

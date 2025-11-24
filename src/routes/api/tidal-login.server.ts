@@ -12,8 +12,8 @@ export const tidalLoginServer = createServerFn()
   .handler(async ({ data }) => {
     const sessionId = data.sessionId
     const code = data.code // code should be passed from client after redirect
-    if (!env?.SESSIONS_KV || !sessionId || !code) {
-      throw new Error('SESSIONS_KV binding, sessionId, or code missing')
+    if (!sessionId || !code) {
+      throw new Error('sessionId or code missing')
     }
     const credentialsProvider = new KVCredentialsProvider(
       env.SESSIONS_KV,
@@ -30,9 +30,5 @@ export const tidalLoginServer = createServerFn()
       success: true,
       token: credentials.access_token,
       userId: credentials.user_id,
-      debug: {
-        stored: true,
-        credentials: credentials,
-      },
     }
   })

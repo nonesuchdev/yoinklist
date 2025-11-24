@@ -2,9 +2,9 @@
 // Cloudflare Workers-compatible Tidal OAuth helpers
 
 // Server-side Tidal OAuth helpers using .env values
-const clientId = process.env.TIDAL_CLIENT_ID
-const clientSecret = process.env.TIDAL_CLIENT_SECRET
-const redirectUri =
+const TIDAL_CLIENT_ID = process.env.TIDAL_CLIENT_ID
+const TIDAL_CLIENT_SECRET = process.env.TIDAL_CLIENT_SECRET
+const TIDAL_REDIRECT_URI =
   process.env.TIDAL_REDIRECT_URI || 'http://localhost:3000/api/tidal-callback'
 
 // Get Tidal OAuth URL for user login (uses .env values)
@@ -14,8 +14,8 @@ export function getServerTidalAuthUrl(
   const baseUrl = 'https://login.tidal.com/authorize'
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: clientId!,
-    redirect_uri: redirectUri,
+    client_id: TIDAL_CLIENT_ID,
+    redirect_uri: TIDAL_REDIRECT_URI,
     scope: scopes.join(' '),
   })
   return `${baseUrl}?${params.toString()}`
@@ -27,9 +27,9 @@ export async function serverExchangeTidalCodeForToken(code: string) {
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
-    client_id: clientId!,
-    client_secret: clientSecret!,
-    redirect_uri: redirectUri,
+    client_id: TIDAL_CLIENT_ID,
+    client_secret: TIDAL_CLIENT_SECRET,
+    redirect_uri: TIDAL_REDIRECT_URI,
   })
   const res = await fetch(tokenUrl, {
     method: 'POST',
@@ -43,7 +43,7 @@ export async function serverExchangeTidalCodeForToken(code: string) {
   return await res.json() // { access_token, refresh_token, ... }
 }
 
-export async function getTidalAuthUrl({
+export function getTidalAuthUrl({
   clientId,
   redirectUri,
   scopes,
@@ -55,7 +55,7 @@ export async function getTidalAuthUrl({
   scopes: Array<string>
   codeChallenge?: string
   codeChallengeMethod?: string
-}): Promise<string> {
+}): string {
   const baseUrl = 'https://login.tidal.com/authorize'
   const params = new URLSearchParams({
     response_type: 'code',
