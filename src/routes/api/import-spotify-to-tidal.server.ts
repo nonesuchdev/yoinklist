@@ -13,11 +13,20 @@ import {
 } from '../../server/spotify-utils'
 
 export const importSpotifyToTidal = createServerFn()
-  .inputValidator(() => ({
-    spotifyUrl:
-      'https://open.spotify.com/playlist/3BJFjPrYay5hCimKsdgqUM?si=eHGGrf9QQ-ae-d-k8rb7Ig&pi=7ozYdiExS2W_T',
-    sessionId: '', // Must be set by client/session
-  }))
+  .inputValidator((input: { spotifyUrl: string; sessionId: string }) => {
+    if (
+      typeof input.spotifyUrl !== 'string' ||
+      typeof input.sessionId !== 'string'
+    ) {
+      throw new Error(
+        'spotifyUrl and sessionId are required and must be strings',
+      )
+    }
+    return {
+      spotifyUrl: input.spotifyUrl,
+      sessionId: input.sessionId,
+    }
+  })
   .handler(async ({ data }) => {
     const { spotifyUrl } = data
     let tracks: Array<{ artist: string; title: string }> = []
@@ -46,37 +55,18 @@ export const importSpotifyToTidal = createServerFn()
       playlistTitle = info.name
     }
 
-    // Automated credentials provider selection for local/Workers
+    // Credentials provider for session
     const sessionId = data.sessionId
-    let credentialsProvider
-    console.log('[importSpotifyToTidal] sessionId:', JSON.stringify(sessionId))
-    if (typeof env !== 'undefined' && env.SESSIONS_KV && sessionId) {
-      console.log(
-        '[importSpotifyToTidal] Using KVCredentialsProvider for session:',
-        JSON.stringify(sessionId),
-      )
-      credentialsProvider = new KVCredentialsProvider(
-        env.SESSIONS_KV,
-        sessionId,
-      )
-    } else {
+    if (!env?.SESSIONS_KV || !sessionId) {
       throw new Error('SESSIONS_KV binding or sessionId missing')
     }
-    console.log(
-      '[importSpotifyToTidal] Getting credentials for session:',
-      JSON.stringify(sessionId),
+    const credentialsProvider = new KVCredentialsProvider(
+      env.SESSIONS_KV,
+      sessionId,
     )
     const credentials = await credentialsProvider.getCredentials()
-    console.log(
-      '[importSpotifyToTidal] Got credentials:',
-      JSON.stringify(credentials),
-    )
-    const accessToken = credentials?.token
+    const accessToken = credentials?.access_token
     if (!accessToken) {
-      console.error(
-        '[importSpotifyToTidal] No access token found for session:',
-        sessionId,
-      )
       throw new Error('User is not authenticated with Tidal')
     }
 
@@ -101,16 +91,10 @@ export const importSpotifyToTidal = createServerFn()
     const playlistId = await createTidalPlaylist(playlistTitle, accessToken)
     await addTracksToTidalPlaylist(playlistId, tidalTracks, accessToken)
 
-    const result = {
+    return {
       playlistName: playlistTitle,
       numTracks: tidalTracks.length,
       numTracksSource: tracks.length,
       preview: preview.slice(0, 5),
     }
-    // Clean log: server return value
-    console.log(
-      '[importSpotifyToTidal] Returning:',
-      JSON.stringify(result, null, 2),
-    )
-    return result
   })

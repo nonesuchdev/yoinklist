@@ -5,7 +5,7 @@ import { KVCredentialsProvider } from '../../server/credentialsProvider'
 
 export const tidalLogoutServer = createServerFn()
   .inputValidator((input: { sessionId?: string }) => ({
-    sessionId: typeof input.sessionId === 'string' ? input.sessionId : '',
+    sessionId: input.sessionId,
   }))
   .handler(async ({ data }) => {
     const sessionId = data.sessionId

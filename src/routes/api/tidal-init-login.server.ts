@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+// @ts-ignore: cloudflare:workers
 import { env } from 'cloudflare:workers'
 import { getTidalAuthUrl } from '../../server/tidal-oauth-utils'
 

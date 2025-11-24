@@ -35,10 +35,8 @@ function Home() {
   useEffect(() => {
     setLoading(true)
     const sessionId = getOrCreateSessionId()
-    console.log('[Home] Checking Tidal credentials for sessionId:', sessionId)
     checkCredentials({ data: { sessionId } })
       .then((result) => {
-        console.log('[Home] Tidal credentials check result:', result)
         setIsLoggedIn(result.isLoggedIn)
         setSuccess(!!result.isLoggedIn)
       })
@@ -130,11 +128,6 @@ function Home() {
       const result = await importSpotifyToTidalFn({
         data: { spotifyUrl, sessionId },
       })
-      // Clean log: client received value
-      console.log(
-        '[importSpotifyToTidal] Client received:',
-        JSON.stringify(result, null, 2),
-      )
       setImportedTracks(
         result.preview.map((t) => ({
           name: `${t.artist} - ${t.name}`,

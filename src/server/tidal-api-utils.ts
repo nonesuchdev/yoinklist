@@ -5,7 +5,8 @@ async function tidalFetch(
   body?: any,
   accessToken?: string,
 ) {
-  const baseUrl = process.env.TIDAL_API_BASE_URL || 'https://api.tidal.com/v1'
+  const baseUrl =
+    process.env.TIDAL_API_BASE_URL || 'https://openapi.tidal.com/v2'
   const url = `${baseUrl}${endpoint}`
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -16,42 +17,52 @@ async function tidalFetch(
     headers,
   }
   if (body) options.body = JSON.stringify(body)
+
   const res = await fetch(url, options)
   if (!res.ok) {
     const error = await res.text()
     throw new Error(`Tidal API error: ${res.status} ${error}`)
   }
-  return await res.json()
+  // let result
+  // try {
+  //   result = await res.clone().json()
+  // } catch {
+  //   result = 'Failed to parse JSON'
+  // }
+  // console.log(`[tidalFetch] - Result`, result)
+  try {
+    return await res.json()
+  } catch {
+    return null
+  }
 }
 
-// Search for a track on Tidal
+// Search for a track on Tidal (v2)
 export async function searchTidalTrack(
   query: string,
   accessToken: string,
 ): Promise<{ uri: string; cover?: string } | null> {
   const params = new URLSearchParams({
-    query,
     countryCode: 'US',
-    limit: '5',
-    types: 'tracks,albums',
+    include: 'tracks,albums',
   }).toString()
   const data = await tidalFetch(
-    `/search?${params}`,
+    `/searchResults/${encodeURIComponent(query)}?${params}`,
     'GET',
     undefined,
     accessToken,
   )
-  if (data.tracks && data.tracks.items && data.tracks.items.length > 0) {
-    const track = data.tracks.items[0]
+  if (data?.data?.relationships?.tracks?.data?.length > 0) {
+    const track = data.data.relationships.tracks.data[0]
     return {
       uri: `tidal:track:${track.id}`,
-      cover: track.album?.cover || '',
+      cover: track.relationships?.album?.data?.attributes?.cover || '',
     }
   }
   return null
 }
 
-// Create a new playlist on Tidal
+// Create a new playlist on Tidal (v2)
 export async function createTidalPlaylist(
   title: string,
   accessToken: string,
@@ -65,11 +76,11 @@ export async function createTidalPlaylist(
       },
     },
   }
-  const data = await tidalFetch(`/playlists`, 'POST', body, accessToken)
+  const data = await tidalFetch('/playlists', 'POST', body, accessToken)
   return data.data.id
 }
 
-// Add tracks to a playlist on Tidal
+// Add tracks to a playlist on Tidal (v2)
 export async function addTracksToTidalPlaylist(
   playlistId: string,
   uris: Array<string>,
