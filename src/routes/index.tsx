@@ -155,8 +155,18 @@ function Home() {
       setCopiedCount(result.numTracks)
       setTotalCount(result.numTracksSource)
       setSuccess(true)
-    } catch (err) {
-      setError('Failed to create playlist')
+    } catch (err: any) {
+      if (err.message && err.message.includes('session expired')) {
+        logoutServerFn({ data: { sessionId: getOrCreateSessionId() } })
+          .then(() => {
+            setIsLoggedIn(false)
+            setSuccess(false)
+          })
+          .catch(() => {})
+        setError('Your Tidal session has expired. Please log in again.')
+      } else {
+        setError(err.message || 'Failed to create playlist')
+      }
     } finally {
       setImportLoading(false)
     }

@@ -33,13 +33,50 @@ export async function getSpotifyPlaylistInfo(
   let allTracks: Array<{ artist: string; title: string }> = []
   let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}`
   let playlistName = ''
+  let isFirst = true
   while (url) {
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
-    type SpotifyPlaylistResponse = {
-      name: string
-      tracks: {
+    if (!response.ok) {
+      throw new Error(
+        `Spotify API error: ${response.status} - ${response.statusText}`,
+      )
+    }
+    const data: any = await response.json()
+    if (data.error) {
+      throw new Error(`Spotify API error: ${data.error.message}`)
+    }
+    if (isFirst) {
+      // First response is the playlist overview
+      type SpotifyPlaylistResponse = {
+        name: string
+        tracks?: {
+          items: Array<{
+            track: {
+              artists: Array<{ name: string }>
+              name: string
+            }
+          }>
+          next: string | null
+        }
+        error?: { message: string }
+      }
+      const playlistData = data as SpotifyPlaylistResponse
+      if (!playlistData.tracks) {
+        throw new Error('Invalid playlist response: missing tracks data')
+      }
+      playlistName = playlistData.name
+      const tracks = playlistData.tracks.items.map((item: any) => ({
+        artist: item.track.artists[0].name,
+        title: item.track.name,
+      }))
+      allTracks = allTracks.concat(tracks)
+      url = playlistData.tracks.next
+      isFirst = false
+    } else {
+      // Subsequent responses are tracks pages
+      type SpotifyTracksResponse = {
         items: Array<{
           track: {
             artists: Array<{ name: string }>
@@ -47,17 +84,19 @@ export async function getSpotifyPlaylistInfo(
           }
         }>
         next: string | null
+        error?: { message: string }
       }
+      const tracksData = data as SpotifyTracksResponse
+      if (tracksData.error) {
+        throw new Error(`Spotify API error: ${tracksData.error.message}`)
+      }
+      const tracks = tracksData.items.map((item: any) => ({
+        artist: item.track.artists[0].name,
+        title: item.track.name,
+      }))
+      allTracks = allTracks.concat(tracks)
+      url = tracksData.next
     }
-    const data = (await response.json()) as SpotifyPlaylistResponse
-    if (!playlistName) playlistName = data.name
-    // If the request succeeds, data.tracks.items will exist
-    const tracks = data.tracks.items.map((item: any) => ({
-      artist: item.track.artists[0].name,
-      title: item.track.name,
-    }))
-    allTracks = allTracks.concat(tracks)
-    url = data.tracks.next
   }
   return { name: playlistName, tracks: allTracks }
 }
