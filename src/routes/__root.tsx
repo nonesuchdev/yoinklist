@@ -15,20 +15,40 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'YoinkList - Import Spotify Playlists to Tidal',
+        title: 'YoinkList - Spotify Playlists to Tidal',
       },
       // Open Graph for Facebook and Bluesky
       {
         property: 'og:title',
-        content: 'YoinkList - Import Spotify Playlists to Tidal',
+        content: 'YoinkList - Spotify Playlists to Tidal',
       },
       {
         property: 'og:description',
-        content: 'Easily copy your Spotify playlists to Tidal with YoinkList.',
+        content: 'Copy public Spotify playlists to your Tidal account.',
       },
       {
         property: 'og:image',
-        content: '/web-app-manifest-512x512.png',
+        content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+      },
+      {
+        property: 'og:image:secure_url',
+        content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+      },
+      {
+        property: 'og:image:type',
+        content: 'image/png',
+      },
+      {
+        property: 'og:image:width',
+        content: '512',
+      },
+      {
+        property: 'og:image:height',
+        content: '512',
+      },
+      {
+        property: 'og:image:alt',
+        content: 'YoinkList — copy Spotify playlists to Tidal',
       },
       {
         property: 'og:url',
@@ -45,15 +65,32 @@ export const Route = createRootRoute({
       },
       {
         name: 'twitter:title',
-        content: 'YoinkList - Import Spotify Playlists to Tidal',
+        content: 'YoinkList - Spotify Playlists to Tidal',
       },
       {
         name: 'twitter:description',
-        content: 'Easily copy your Spotify playlists to Tidal with YoinkList.',
+        content: 'Copy public Spotify playlists to your Tidal account.',
+      },
+      {
+        name: 'twitter:url',
+        content: 'https://yoink.nonesuch.dev',
       },
       {
         name: 'twitter:image',
-        content: '/web-app-manifest-512x512.png',
+        content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+      },
+      {
+        name: 'twitter:image:alt',
+        content: 'YoinkList — copy Spotify playlists to Tidal',
+      },
+      // Additional general-purpose meta tags for link previews
+      {
+        name: 'image',
+        content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+      },
+      {
+        itemprop: 'image',
+        content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
       },
     ],
     links: [
@@ -64,6 +101,21 @@ export const Route = createRootRoute({
       {
         rel: 'icon',
         href: 'favicon.ico',
+      },
+      {
+        rel: 'image_src',
+        href: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+      },
+    ],
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'YoinkList',
+          image: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
+        }),
       },
     ],
   }),

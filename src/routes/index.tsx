@@ -204,11 +204,11 @@ function Home() {
         <Card className="w-full max-w-md bg-gray-800 text-white border-gray-700">
           <CardContent className="pt-6 px-8">
             <label className="block mb-2 text-lg font-medium">
-              Link to Spotify Playlist
+              Spotify Playlist Link
             </label>
             <Input
               ref={inputRef}
-              placeholder="Enter Spotify playlist or track URL"
+              placeholder="Paste the share link from a public playlist"
             />
             <div className="flex gap-4 justify-center mt-4">
               <Button
