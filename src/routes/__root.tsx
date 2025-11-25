@@ -89,7 +89,7 @@ export const Route = createRootRoute({
         content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
       },
       {
-        itemprop: 'image',
+        itemProp: 'image',
         content: 'https://yoink.nonesuch.dev/web-app-manifest-512x512.png',
       },
     ],
