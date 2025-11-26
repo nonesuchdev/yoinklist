@@ -96,15 +96,11 @@ export const importSpotifyToTidal = createServerFn()
 
       // Enqueue all tracks as a single background job
       const queue = env.yoink_import_queue
-      const tracksToProcess = tracks.slice(0, 5) // Limit to 5 tracks for testing
-      await env.SESSIONS_KV.put(
-        `total:${playlistId}`,
-        tracksToProcess.length.toString(),
-      )
+      await env.SESSIONS_KV.put(`total:${playlistId}`, tracks.length.toString())
       const enqueueStart = Date.now()
       try {
         await queue.send({
-          tracks: tracksToProcess,
+          tracks, // : tracksToProcess,
           accessToken,
           playlistId,
           sessionId,
@@ -120,14 +116,14 @@ export const importSpotifyToTidal = createServerFn()
         playlistName: playlistTitle,
         numTracks: 0, // Will be added asynchronously
         numTracksSource: tracks.length,
-        preview: tracks.slice(0, 5).map((track) => ({
+        preview: tracks.map((track) => ({
           artist: track.artist,
           name: track.title,
           cover: '', // No cover available yet
         })),
         status: 'Processing in background. Check your Tidal account soon.',
         playlistId,
-        totalTracks: tracksToProcess.length,
+        totalTracks: tracks.length,
       }
     } catch (error: any) {
       const isAuthError =
