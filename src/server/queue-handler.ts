@@ -9,7 +9,6 @@ export interface QueueMessage {
 }
 
 export async function handleQueueMessage(batch: Array<any>, env: any) {
-  console.log(`Processing queue batch with ${batch.length} messages`)
   for (const message of batch) {
     const data = message.body as QueueMessage
     const lastPollKey = `last_poll:${data.playlistId}`
@@ -19,9 +18,6 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
     const timeoutMs = 10 * 60 * 1000 // 10 minutes
 
     if (now - lastPoll > timeoutMs) {
-      console.log(
-        `Skipping processing for playlist ${data.playlistId} due to inactivity (last poll: ${new Date(lastPoll).toISOString()})`,
-      )
       continue
     }
 
@@ -37,41 +33,27 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
         ? parseInt(currentLastPollStr)
         : 0
       if (now - currentLastPoll > timeoutMs) {
-        console.log(
-          `Stopping processing for playlist ${data.playlistId} due to inactivity during batch`,
-        )
         break
       }
 
-      const trackStart = Date.now()
-      console.log('Processing track:', track)
       try {
-        const searchStart = Date.now()
         const result = await searchTidalTrack(
           `${track.artist} ${track.title}`,
           data.accessToken,
         )
-        console.log(`search track: ${Date.now() - searchStart}ms`)
-        console.log('Search result:', result)
         if (result) {
-          console.log('Adding track to playlist:', data.playlistId, result.uri)
-          const addStart = Date.now()
           await addTracksToTidalPlaylist(
             data.playlistId,
             [result.uri],
             data.accessToken,
           )
-          console.log(`add track: ${Date.now() - addStart}ms`)
-          console.log('Track added successfully')
           processedCount++
           // Update progress in KV
           await env.SESSIONS_KV.put(
             `progress:${data.playlistId}`,
             processedCount.toString(),
           )
-          console.log('KV put done for progress:', processedCount)
         } else {
-          console.log('Track not found, skipping')
         }
       } catch (error: any) {
         const isAuthError =
@@ -79,9 +61,6 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
           (error.message.includes('Expired token') ||
             error.message.includes('UNAUTHORIZED'))
         if (isAuthError) {
-          console.log(
-            `Skipping track due to auth error: ${track.artist} - ${track.title}`,
-          )
         } else {
           console.error(
             `Error processing track ${track.artist} - ${track.title}:`,
@@ -92,11 +71,9 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
         // Continue to next track or stop?
         // For now, continue, but perhaps break if auth error
         if (isAuthError) {
-          console.log('Stopping batch due to auth error')
           break
         }
       }
-      console.log(`process track: ${Date.now() - trackStart}ms`)
     }
   }
 }

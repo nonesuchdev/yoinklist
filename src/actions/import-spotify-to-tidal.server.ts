@@ -39,7 +39,6 @@ export const importSpotifyToTidal = createServerFn()
     }
   })
   .handler(async ({ data }): Promise<ImportResult> => {
-    const start = Date.now()
     try {
       const { spotifyUrl } = data
       let tracks: Array<{ artist: string; title: string }> = []
@@ -55,7 +54,6 @@ export const importSpotifyToTidal = createServerFn()
       }
 
       // Fetch Spotify info
-      const fetchSpotifyStart = Date.now()
       if (playlistMatch) {
         const playlistId = playlistMatch[1]
         const info = await getSpotifyPlaylistInfo(playlistId)
@@ -67,7 +65,6 @@ export const importSpotifyToTidal = createServerFn()
         tracks = info.tracks
         playlistTitle = info.name
       }
-      console.log(`fetch spotify: ${Date.now() - fetchSpotifyStart}ms`)
 
       // Credentials provider for session
       const sessionId = data.sessionId
@@ -85,11 +82,7 @@ export const importSpotifyToTidal = createServerFn()
       }
 
       // Create Tidal playlist immediately
-      const createPlaylistStart = Date.now()
       const playlistId = await createTidalPlaylist(playlistTitle, accessToken)
-      console.log(
-        `create tidal playlist: ${Date.now() - createPlaylistStart}ms`,
-      )
 
       // Initialize progress counter
       await env.SESSIONS_KV.put(`progress:${playlistId}`, '0')
@@ -97,7 +90,6 @@ export const importSpotifyToTidal = createServerFn()
       // Enqueue all tracks as a single background job
       const queue = env.yoink_import_queue
       await env.SESSIONS_KV.put(`total:${playlistId}`, tracks.length.toString())
-      const enqueueStart = Date.now()
       try {
         await queue.send({
           tracks, // : tracksToProcess,
@@ -105,13 +97,11 @@ export const importSpotifyToTidal = createServerFn()
           playlistId,
           sessionId,
         })
-        console.log(`enqueue job: ${Date.now() - enqueueStart}ms`)
       } catch (enqueueError) {
         console.error('Failed to enqueue job:', enqueueError)
         throw new Error('Failed to start background processing')
       }
 
-      console.log(`import total: ${Date.now() - start}ms`)
       return {
         playlistName: playlistTitle,
         numTracks: 0, // Will be added asynchronously
@@ -126,13 +116,6 @@ export const importSpotifyToTidal = createServerFn()
         totalTracks: tracks.length,
       }
     } catch (error: any) {
-      const isAuthError =
-        error.message &&
-        (error.message.includes('Expired token') ||
-          error.message.includes('UNAUTHORIZED'))
-      if (!isAuthError) {
-        console.error('Import error:', error)
-      }
       throw new Error(error.message || 'Import failed')
     }
   })

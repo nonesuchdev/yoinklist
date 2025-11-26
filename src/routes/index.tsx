@@ -130,7 +130,6 @@ function Home() {
             playlistId: progress.playlistId,
           },
         })
-        console.log(`Progress: ${current} / ${progress.total}`)
         setProgress((prev) => (prev ? { ...prev, current } : null))
         if (current >= progress.total) {
           setIsComplete(true)

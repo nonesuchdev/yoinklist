@@ -23,13 +23,7 @@ async function tidalFetch(
     const error = await res.text()
     throw new Error(`Tidal API error: ${res.status} ${error}`)
   }
-  // let result
-  // try {
-  //   result = await res.clone().json()
-  // } catch {
-  //   result = 'Failed to parse JSON'
-  // }
-  // console.log(`[tidalFetch] - Result`, result)
+
   try {
     return await res.json()
   } catch {
@@ -42,7 +36,6 @@ export async function searchTidalTrack(
   query: string,
   accessToken: string,
 ): Promise<{ uri: string; cover?: string } | null> {
-  const start = Date.now()
   const params = new URLSearchParams({
     countryCode: 'US',
     include: 'tracks,albums',
@@ -55,15 +48,11 @@ export async function searchTidalTrack(
   )
   if (data?.data?.relationships?.tracks?.data?.length > 0) {
     const track = data.data.relationships.tracks.data[0]
-    console.log(`search tidal track (${query}): ${Date.now() - start}ms`)
     return {
       uri: `tidal:track:${track.id}`,
       cover: track.relationships?.album?.data?.attributes?.cover || '',
     }
   }
-  console.log(
-    `search tidal track (${query}): ${Date.now() - start}ms - no results`,
-  )
   return null
 }
 
@@ -72,7 +61,6 @@ export async function createTidalPlaylist(
   title: string,
   accessToken: string,
 ): Promise<string> {
-  const start = Date.now()
   const body = {
     data: {
       type: 'playlists',
@@ -83,7 +71,6 @@ export async function createTidalPlaylist(
     },
   }
   const data: any = await tidalFetch('/playlists', 'POST', body, accessToken)
-  console.log(`create tidal playlist (${title}): ${Date.now() - start}ms`)
   return data.data.id
 }
 
@@ -93,7 +80,6 @@ export async function addTracksToTidalPlaylist(
   uris: Array<string>,
   accessToken: string,
 ): Promise<void> {
-  const start = Date.now()
   const trackData = uris.map((uri) => {
     const id = uri.split(':')[2]
     return {
@@ -109,7 +95,6 @@ export async function addTracksToTidalPlaylist(
     body,
     accessToken,
   )
-  console.log(`add tracks to playlist (${playlistId}): ${Date.now() - start}ms`)
 }
 
 // Get the number of tracks in a Tidal playlist
@@ -123,6 +108,5 @@ export async function getTidalPlaylistTrackCount(
     undefined,
     accessToken,
   )
-  console.log('Playlist data:', JSON.stringify(data, null, 2))
   return data.data.attributes.numberOfTracks || 0
 }

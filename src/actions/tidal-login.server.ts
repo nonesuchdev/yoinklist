@@ -20,12 +20,7 @@ export const tidalLoginServer = createServerFn()
       sessionId,
     )
     const credentials = await serverExchangeTidalCodeForToken(code)
-    console.log(
-      '[tidal-login] Received credentials:',
-      JSON.stringify(credentials, null, 2),
-    )
     await credentialsProvider.setCredentials(credentials)
-    console.log('[tidal-login] Stored credentials for session:', sessionId)
     return {
       success: true,
       token: credentials.access_token,

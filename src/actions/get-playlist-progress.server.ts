@@ -19,7 +19,6 @@ export const getPlaylistProgress = createServerFn()
     const totalStr = await env.SESSIONS_KV.get(totalKey)
     const current = parseInt(currentStr || '0')
     const total = parseInt(totalStr || '0')
-    console.log(`Progress from KV: ${current}/${total}`)
 
     // Update last poll time
     await env.SESSIONS_KV.put(`last_poll:${playlistId}`, Date.now().toString())
