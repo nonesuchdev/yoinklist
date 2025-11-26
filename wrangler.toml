@@ -1,13 +1,24 @@
 name = "yoinklist"
 compatibility_date = "2025-09-02"
 compatibility_flags = ["nodejs_compat"]
-main = "@tanstack/react-start/server-entry"
+main = "src/server/worker.ts"
 
 account_id = "8367b2e5c530fcff663c3efa148afd66"
 
 kv_namespaces = [
   { binding = "SESSIONS_KV", id = "6206104511af4ee093f1c3f8d06f252a" }
 ]
+
+[[queues.producers]]
+queue = "yoink-import-queue"
+binding = "yoink_import_queue"
+
+[[queues.consumers]]
+queue = "yoink-import-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+dead_letter_queue = "import-dlq"
 
 [observability]
 enabled = true
