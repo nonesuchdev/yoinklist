@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 // @ts-ignore: cloudflare:workers
 import { env } from 'cloudflare:workers'
-import { KVCredentialsProvider } from '../../server/credentialsProvider'
+import { KVCredentialsProvider } from '../server/credentialsProvider'
 
 const {
   TIDAL_CLIENT_ID: clientId = 'client-id-missing',
@@ -28,7 +28,7 @@ export const tidalFinalizeLogin = createServerFn()
     if (!code) throw new Error('No code found in query string')
     // Exchange code for token using PKCE
     const { exchangeTidalCodeForToken } = await import(
-      '../../server/tidal-oauth-utils'
+      '../server/tidal-oauth-utils'
     )
     const tokenResponse = await exchangeTidalCodeForToken({
       clientId,

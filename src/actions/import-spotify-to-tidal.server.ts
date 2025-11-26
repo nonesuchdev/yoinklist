@@ -1,15 +1,25 @@
 import { createServerFn } from '@tanstack/react-start'
 import { env } from 'cloudflare:workers'
-import {
-  addTracksToTidalPlaylist,
-  createTidalPlaylist,
-  searchTidalTrack,
-} from '../../server/tidal-api-utils'
-import { KVCredentialsProvider } from '../../server/credentialsProvider'
+import { createTidalPlaylist } from '../server/tidal-api-utils'
+import { KVCredentialsProvider } from '../server/credentialsProvider'
 import {
   getSpotifyPlaylistInfo,
   getSpotifyTrackInfo,
-} from '../../server/spotify-utils'
+} from '../server/spotify-utils'
+
+interface Track {
+  artist: string
+  name: string
+  cover?: string
+}
+
+interface ImportResult {
+  playlistName: string
+  numTracks: number
+  numTracksSource: number
+  preview: Track[]
+  status: string
+}
 
 export const importSpotifyToTidal = createServerFn()
   .inputValidator((input: { spotifyUrl: string; sessionId: string }) => {
@@ -26,13 +36,11 @@ export const importSpotifyToTidal = createServerFn()
       sessionId: input.sessionId,
     }
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<ImportResult> => {
     try {
       const { spotifyUrl } = data
       let tracks: Array<{ artist: string; title: string }> = []
       let playlistTitle = ''
-      const preview: Array<{ name: string; artist: string; cover?: string }> =
-        []
 
       // Parse Spotify URL
       const playlistMatch = spotifyUrl.match(/playlist\/([a-zA-Z0-9]+)/)
@@ -71,56 +79,29 @@ export const importSpotifyToTidal = createServerFn()
         throw new Error('User is not authenticated with Tidal')
       }
 
-      // Search for each track on Tidal
-      const tidalTracks: Array<string> = []
-      for (const track of tracks) {
-        try {
-          const tidalResult = await searchTidalTrack(
-            `${track.artist} ${track.title}`,
-            accessToken,
-          )
-          if (tidalResult) {
-            tidalTracks.push(tidalResult.uri)
-            preview.push({
-              name: track.title,
-              artist: track.artist,
-              cover: tidalResult.cover || '',
-            })
-          }
-          // Add delay to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        } catch (error: any) {
-          if (
-            error.message.includes('401') ||
-            error.message.includes('Expired token') ||
-            error.message.includes('UNAUTHORIZED')
-          ) {
-            throw new Error('Tidal session expired. Please log in again.')
-          }
-          throw error
-        }
-      }
+      // Create Tidal playlist immediately
+      const playlistId = await createTidalPlaylist(playlistTitle, accessToken)
 
-      // Create playlist on Tidal
-      try {
-        const playlistId = await createTidalPlaylist(playlistTitle, accessToken)
-        await addTracksToTidalPlaylist(playlistId, tidalTracks, accessToken)
-      } catch (error: any) {
-        if (
-          error.message.includes('401') ||
-          error.message.includes('Expired token') ||
-          error.message.includes('UNAUTHORIZED')
-        ) {
-          throw new Error('Tidal session expired. Please log in again.')
-        }
-        throw error
+      // Enqueue track searches for background processing
+      const queue = env.yoink_import_queue
+      for (const track of tracks) {
+        await queue.send({
+          track,
+          accessToken,
+          playlistId,
+        })
       }
 
       return {
         playlistName: playlistTitle,
-        numTracks: tidalTracks.length,
+        numTracks: 0, // Will be added asynchronously
         numTracksSource: tracks.length,
-        preview: preview.slice(0, 5),
+        preview: tracks.slice(0, 5).map((track) => ({
+          artist: track.artist,
+          name: track.title,
+          cover: '', // No cover available yet
+        })),
+        status: 'Processing in background. Check your Tidal account soon.',
       }
     } catch (error: any) {
       console.error('Import error:', error)

@@ -10,128 +10,134 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as DemoDisabledStartServerFuncsRouteImport } from './routes/demo-disabled/start.server-funcs'
+import { Route as DemoDisabledStartApiRequestRouteImport } from './routes/demo-disabled/start.api-request'
+import { Route as DemoDisabledApiNamesRouteImport } from './routes/demo-disabled/api.names'
+import { Route as DemoDisabledStartSsrIndexRouteImport } from './routes/demo-disabled/start.ssr.index'
+import { Route as DemoDisabledStartSsrSpaModeRouteImport } from './routes/demo-disabled/start.ssr.spa-mode'
+import { Route as DemoDisabledStartSsrFullSsrRouteImport } from './routes/demo-disabled/start.ssr.full-ssr'
+import { Route as DemoDisabledStartSsrDataOnlyRouteImport } from './routes/demo-disabled/start.ssr.data-only'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
+const DemoDisabledStartServerFuncsRoute =
+  DemoDisabledStartServerFuncsRouteImport.update({
+    id: '/demo-disabled/start/server-funcs',
+    path: '/demo-disabled/start/server-funcs',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DemoDisabledStartApiRequestRoute =
+  DemoDisabledStartApiRequestRouteImport.update({
+    id: '/demo-disabled/start/api-request',
+    path: '/demo-disabled/start/api-request',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DemoDisabledApiNamesRoute = DemoDisabledApiNamesRouteImport.update({
+  id: '/demo-disabled/api/names',
+  path: '/demo-disabled/api/names',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
-  id: '/demo/start/ssr/',
-  path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
-  id: '/demo/start/ssr/data-only',
-  path: '/demo/start/ssr/data-only',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const DemoDisabledStartSsrIndexRoute =
+  DemoDisabledStartSsrIndexRouteImport.update({
+    id: '/demo-disabled/start/ssr/',
+    path: '/demo-disabled/start/ssr/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DemoDisabledStartSsrSpaModeRoute =
+  DemoDisabledStartSsrSpaModeRouteImport.update({
+    id: '/demo-disabled/start/ssr/spa-mode',
+    path: '/demo-disabled/start/ssr/spa-mode',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DemoDisabledStartSsrFullSsrRoute =
+  DemoDisabledStartSsrFullSsrRouteImport.update({
+    id: '/demo-disabled/start/ssr/full-ssr',
+    path: '/demo-disabled/start/ssr/full-ssr',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DemoDisabledStartSsrDataOnlyRoute =
+  DemoDisabledStartSsrDataOnlyRouteImport.update({
+    id: '/demo-disabled/start/ssr/data-only',
+    path: '/demo-disabled/start/ssr/data-only',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/demo-disabled/api/names': typeof DemoDisabledApiNamesRoute
+  '/demo-disabled/start/api-request': typeof DemoDisabledStartApiRequestRoute
+  '/demo-disabled/start/server-funcs': typeof DemoDisabledStartServerFuncsRoute
+  '/demo-disabled/start/ssr/data-only': typeof DemoDisabledStartSsrDataOnlyRoute
+  '/demo-disabled/start/ssr/full-ssr': typeof DemoDisabledStartSsrFullSsrRoute
+  '/demo-disabled/start/ssr/spa-mode': typeof DemoDisabledStartSsrSpaModeRoute
+  '/demo-disabled/start/ssr': typeof DemoDisabledStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/demo-disabled/api/names': typeof DemoDisabledApiNamesRoute
+  '/demo-disabled/start/api-request': typeof DemoDisabledStartApiRequestRoute
+  '/demo-disabled/start/server-funcs': typeof DemoDisabledStartServerFuncsRoute
+  '/demo-disabled/start/ssr/data-only': typeof DemoDisabledStartSsrDataOnlyRoute
+  '/demo-disabled/start/ssr/full-ssr': typeof DemoDisabledStartSsrFullSsrRoute
+  '/demo-disabled/start/ssr/spa-mode': typeof DemoDisabledStartSsrSpaModeRoute
+  '/demo-disabled/start/ssr': typeof DemoDisabledStartSsrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/demo-disabled/api/names': typeof DemoDisabledApiNamesRoute
+  '/demo-disabled/start/api-request': typeof DemoDisabledStartApiRequestRoute
+  '/demo-disabled/start/server-funcs': typeof DemoDisabledStartServerFuncsRoute
+  '/demo-disabled/start/ssr/data-only': typeof DemoDisabledStartSsrDataOnlyRoute
+  '/demo-disabled/start/ssr/full-ssr': typeof DemoDisabledStartSsrFullSsrRoute
+  '/demo-disabled/start/ssr/spa-mode': typeof DemoDisabledStartSsrSpaModeRoute
+  '/demo-disabled/start/ssr/': typeof DemoDisabledStartSsrIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/demo-disabled/api/names'
+    | '/demo-disabled/start/api-request'
+    | '/demo-disabled/start/server-funcs'
+    | '/demo-disabled/start/ssr/data-only'
+    | '/demo-disabled/start/ssr/full-ssr'
+    | '/demo-disabled/start/ssr/spa-mode'
+    | '/demo-disabled/start/ssr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/demo-disabled/api/names'
+    | '/demo-disabled/start/api-request'
+    | '/demo-disabled/start/server-funcs'
+    | '/demo-disabled/start/ssr/data-only'
+    | '/demo-disabled/start/ssr/full-ssr'
+    | '/demo-disabled/start/ssr/spa-mode'
+    | '/demo-disabled/start/ssr'
   id:
     | '__root__'
     | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
+    | '/demo-disabled/api/names'
+    | '/demo-disabled/start/api-request'
+    | '/demo-disabled/start/server-funcs'
+    | '/demo-disabled/start/ssr/data-only'
+    | '/demo-disabled/start/ssr/full-ssr'
+    | '/demo-disabled/start/ssr/spa-mode'
+    | '/demo-disabled/start/ssr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
-  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
-  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
-  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
-  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
+  DemoDisabledApiNamesRoute: typeof DemoDisabledApiNamesRoute
+  DemoDisabledStartApiRequestRoute: typeof DemoDisabledStartApiRequestRoute
+  DemoDisabledStartServerFuncsRoute: typeof DemoDisabledStartServerFuncsRoute
+  DemoDisabledStartSsrDataOnlyRoute: typeof DemoDisabledStartSsrDataOnlyRoute
+  DemoDisabledStartSsrFullSsrRoute: typeof DemoDisabledStartSsrFullSsrRoute
+  DemoDisabledStartSsrSpaModeRoute: typeof DemoDisabledStartSsrSpaModeRoute
+  DemoDisabledStartSsrIndexRoute: typeof DemoDisabledStartSsrIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -143,53 +149,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
+    '/demo-disabled/start/server-funcs': {
+      id: '/demo-disabled/start/server-funcs'
+      path: '/demo-disabled/start/server-funcs'
+      fullPath: '/demo-disabled/start/server-funcs'
+      preLoaderRoute: typeof DemoDisabledStartServerFuncsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
+    '/demo-disabled/start/api-request': {
+      id: '/demo-disabled/start/api-request'
+      path: '/demo-disabled/start/api-request'
+      fullPath: '/demo-disabled/start/api-request'
+      preLoaderRoute: typeof DemoDisabledStartApiRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
+    '/demo-disabled/api/names': {
+      id: '/demo-disabled/api/names'
+      path: '/demo-disabled/api/names'
+      fullPath: '/demo-disabled/api/names'
+      preLoaderRoute: typeof DemoDisabledApiNamesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/ssr/': {
-      id: '/demo/start/ssr/'
-      path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
-      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
+    '/demo-disabled/start/ssr/': {
+      id: '/demo-disabled/start/ssr/'
+      path: '/demo-disabled/start/ssr'
+      fullPath: '/demo-disabled/start/ssr'
+      preLoaderRoute: typeof DemoDisabledStartSsrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
+    '/demo-disabled/start/ssr/spa-mode': {
+      id: '/demo-disabled/start/ssr/spa-mode'
+      path: '/demo-disabled/start/ssr/spa-mode'
+      fullPath: '/demo-disabled/start/ssr/spa-mode'
+      preLoaderRoute: typeof DemoDisabledStartSsrSpaModeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
+    '/demo-disabled/start/ssr/full-ssr': {
+      id: '/demo-disabled/start/ssr/full-ssr'
+      path: '/demo-disabled/start/ssr/full-ssr'
+      fullPath: '/demo-disabled/start/ssr/full-ssr'
+      preLoaderRoute: typeof DemoDisabledStartSsrFullSsrRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/ssr/data-only': {
-      id: '/demo/start/ssr/data-only'
-      path: '/demo/start/ssr/data-only'
-      fullPath: '/demo/start/ssr/data-only'
-      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
+    '/demo-disabled/start/ssr/data-only': {
+      id: '/demo-disabled/start/ssr/data-only'
+      path: '/demo-disabled/start/ssr/data-only'
+      fullPath: '/demo-disabled/start/ssr/data-only'
+      preLoaderRoute: typeof DemoDisabledStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -197,13 +203,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
-  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
-  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
-  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
-  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
+  DemoDisabledApiNamesRoute: DemoDisabledApiNamesRoute,
+  DemoDisabledStartApiRequestRoute: DemoDisabledStartApiRequestRoute,
+  DemoDisabledStartServerFuncsRoute: DemoDisabledStartServerFuncsRoute,
+  DemoDisabledStartSsrDataOnlyRoute: DemoDisabledStartSsrDataOnlyRoute,
+  DemoDisabledStartSsrFullSsrRoute: DemoDisabledStartSsrFullSsrRoute,
+  DemoDisabledStartSsrSpaModeRoute: DemoDisabledStartSsrSpaModeRoute,
+  DemoDisabledStartSsrIndexRoute: DemoDisabledStartSsrIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

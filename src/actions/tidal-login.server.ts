@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 // @ts-ignore: cloudflare:workers
 import { env } from 'cloudflare:workers'
-import { KVCredentialsProvider } from '../../server/credentialsProvider'
-import { serverExchangeTidalCodeForToken } from '../../server/tidal-oauth-utils'
+import { KVCredentialsProvider } from '../server/credentialsProvider'
+import { serverExchangeTidalCodeForToken } from '../server/tidal-oauth-utils'
 
 export const tidalLoginServer = createServerFn()
   .inputValidator((input: { sessionId: string; code: string }) => ({

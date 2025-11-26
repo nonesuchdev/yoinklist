@@ -1,14 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 // @ts-ignore: cloudflare:workers
 import { env } from 'cloudflare:workers'
-import { KVCredentialsProvider } from '../../server/credentialsProvider'
+import { KVCredentialsProvider } from '../server/credentialsProvider'
 
-export const checkTidalCredentials = createServerFn()
+export const tidalLogoutServer = createServerFn()
   .inputValidator((input: { sessionId?: string }) => ({
     sessionId: input.sessionId,
   }))
   .handler(async ({ data }) => {
-    const { sessionId } = data
+    const sessionId = data.sessionId
     if (!sessionId) {
       throw new Error('sessionId missing')
     }
@@ -16,10 +16,6 @@ export const checkTidalCredentials = createServerFn()
       env.SESSIONS_KV,
       sessionId,
     )
-    const creds = await credentialsProvider.getCredentials()
-    return {
-      isLoggedIn: !!creds?.access_token && !!creds?.user_id,
-      token: creds?.access_token,
-      userId: creds?.user_id,
-    }
+    await credentialsProvider.removeCredentials()
+    return { success: true }
   })

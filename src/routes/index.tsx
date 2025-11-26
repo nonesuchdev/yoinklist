@@ -18,7 +18,7 @@ import {
   tidalFinalizeLogin,
   tidalInitLogin,
   tidalLogoutServer,
-} from './api'
+} from '../actions'
 
 function Home() {
   const [importedTracks, setImportedTracks] = useState<
