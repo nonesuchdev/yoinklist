@@ -69,7 +69,7 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
             `progress:${data.playlistId}`,
             processedCount.toString(),
           )
-          console.log('Updated progress to:', processedCount)
+          console.log('KV put done for progress:', processedCount)
         } else {
           console.log('Track not found, skipping')
         }

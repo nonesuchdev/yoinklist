@@ -102,13 +102,18 @@ export const importSpotifyToTidal = createServerFn()
         tracksToProcess.length.toString(),
       )
       const enqueueStart = Date.now()
-      await queue.send({
-        tracks: tracksToProcess,
-        accessToken,
-        playlistId,
-        sessionId,
-      })
-      console.log(`enqueue job: ${Date.now() - enqueueStart}ms`)
+      try {
+        await queue.send({
+          tracks: tracksToProcess,
+          accessToken,
+          playlistId,
+          sessionId,
+        })
+        console.log(`enqueue job: ${Date.now() - enqueueStart}ms`)
+      } catch (enqueueError) {
+        console.error('Failed to enqueue job:', enqueueError)
+        throw new Error('Failed to start background processing')
+      }
 
       console.log(`import total: ${Date.now() - start}ms`)
       return {
