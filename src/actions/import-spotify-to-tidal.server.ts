@@ -17,8 +17,10 @@ interface ImportResult {
   playlistName: string
   numTracks: number
   numTracksSource: number
-  preview: Track[]
+  preview: Array<Track>
   status: string
+  playlistId: string
+  totalTracks: number
 }
 
 export const importSpotifyToTidal = createServerFn()
@@ -37,6 +39,7 @@ export const importSpotifyToTidal = createServerFn()
     }
   })
   .handler(async ({ data }): Promise<ImportResult> => {
+    const start = Date.now()
     try {
       const { spotifyUrl } = data
       let tracks: Array<{ artist: string; title: string }> = []
@@ -52,6 +55,7 @@ export const importSpotifyToTidal = createServerFn()
       }
 
       // Fetch Spotify info
+      const fetchSpotifyStart = Date.now()
       if (playlistMatch) {
         const playlistId = playlistMatch[1]
         const info = await getSpotifyPlaylistInfo(playlistId)
@@ -63,6 +67,7 @@ export const importSpotifyToTidal = createServerFn()
         tracks = info.tracks
         playlistTitle = info.name
       }
+      console.log(`fetch spotify: ${Date.now() - fetchSpotifyStart}ms`)
 
       // Credentials provider for session
       const sessionId = data.sessionId
@@ -80,18 +85,31 @@ export const importSpotifyToTidal = createServerFn()
       }
 
       // Create Tidal playlist immediately
+      const createPlaylistStart = Date.now()
       const playlistId = await createTidalPlaylist(playlistTitle, accessToken)
+      console.log(
+        `create tidal playlist: ${Date.now() - createPlaylistStart}ms`,
+      )
 
-      // Enqueue track searches for background processing
+      // Initialize progress counter
+      await env.SESSIONS_KV.put(`progress:${playlistId}`, '0')
+
+      // Enqueue all tracks as a single background job
       const queue = env.yoink_import_queue
-      for (const track of tracks) {
-        await queue.send({
-          track,
-          accessToken,
-          playlistId,
-        })
-      }
+      const tracksToProcess = tracks.slice(0, 5) // Limit to 5 tracks for testing
+      await env.SESSIONS_KV.put(
+        `total:${playlistId}`,
+        tracksToProcess.length.toString(),
+      )
+      const enqueueStart = Date.now()
+      await queue.send({
+        tracks: tracksToProcess,
+        accessToken,
+        playlistId,
+      })
+      console.log(`enqueue job: ${Date.now() - enqueueStart}ms`)
 
+      console.log(`import total: ${Date.now() - start}ms`)
       return {
         playlistName: playlistTitle,
         numTracks: 0, // Will be added asynchronously
@@ -102,6 +120,8 @@ export const importSpotifyToTidal = createServerFn()
           cover: '', // No cover available yet
         })),
         status: 'Processing in background. Check your Tidal account soon.',
+        playlistId,
+        totalTracks: tracksToProcess.length,
       }
     } catch (error: any) {
       console.error('Import error:', error)

@@ -14,6 +14,7 @@ import { Input } from '../components/ui/input'
 import { Card, CardContent } from '../components/ui/card'
 import {
   checkTidalCredentials,
+  getPlaylistProgress,
   importSpotifyToTidal,
   tidalFinalizeLogin,
   tidalInitLogin,
@@ -21,23 +22,24 @@ import {
 } from '../actions'
 
 function Home() {
-  const [importedTracks, setImportedTracks] = useState<
-    Array<{ name: string; cover: string }>
-  >([])
   const [playlistTitle, setPlaylistTitle] = useState<string>('')
-  const [copiedCount, setCopiedCount] = useState<number>(0)
-  const [totalCount, setTotalCount] = useState<number>(0)
   const [importLoading, setImportLoading] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<boolean>(false)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const [progress, setProgress] = useState<{
+    current: number
+    total: number
+    playlistId: string
+  } | null>(null)
+  const [isComplete, setIsComplete] = useState<boolean>(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const checkCredentials = useServerFn(checkTidalCredentials)
   const initLoginFn = useServerFn(tidalInitLogin)
   const finalizeLoginFn = useServerFn(tidalFinalizeLogin)
   const logoutServerFn = useServerFn(tidalLogoutServer)
   const importSpotifyToTidalFn = useServerFn(importSpotifyToTidal)
+  const getProgressFn = useServerFn(getPlaylistProgress)
 
   useEffect(() => {
     setLoading(true)
@@ -45,7 +47,6 @@ function Home() {
     checkCredentials({ data: { sessionId } })
       .then((result) => {
         setIsLoggedIn(result.isLoggedIn)
-        setSuccess(!!result.isLoggedIn)
       })
       .catch(() => setError('Failed to check Tidal credentials'))
       .finally(() => setLoading(false))
@@ -108,7 +109,6 @@ function Home() {
       })
         .then(() => {
           setIsLoggedIn(true)
-          setSuccess(true)
           window.history.replaceState(
             {},
             document.title,
@@ -120,7 +120,28 @@ function Home() {
     }
   }, [])
 
-  // Removed invalid useEffect block
+  useEffect(() => {
+    if (!progress || isComplete) return
+    const interval = setInterval(async () => {
+      try {
+        const { current } = await getProgressFn({
+          data: {
+            sessionId: getOrCreateSessionId(),
+            playlistId: progress.playlistId,
+          },
+        })
+        console.log(`Progress: ${current} / ${progress.total}`)
+        setProgress((prev) => (prev ? { ...prev, current } : null))
+        if (current >= progress.total) {
+          setIsComplete(true)
+          clearInterval(interval)
+        }
+      } catch (err) {
+        console.error('Progress check failed:', err)
+      }
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [progress, getProgressFn, isComplete])
 
   const handleCreatePlaylist = async () => {
     setImportLoading(true)
@@ -145,22 +166,19 @@ function Home() {
       const result = await importSpotifyToTidalFn({
         data: { spotifyUrl: processedUrl, sessionId },
       })
-      setImportedTracks(
-        result.preview.map((t) => ({
-          name: `${t.artist} - ${t.name}`,
-          cover: t.cover || '',
-        })),
-      )
       setPlaylistTitle(result.playlistName)
-      setCopiedCount(result.numTracks)
-      setTotalCount(result.numTracksSource)
-      setSuccess(true)
+      // Start progress polling
+      setIsComplete(false)
+      setProgress({
+        current: 0,
+        total: result.totalTracks,
+        playlistId: result.playlistId,
+      })
     } catch (err: any) {
       if (err.message && err.message.includes('session expired')) {
         logoutServerFn({ data: { sessionId: getOrCreateSessionId() } })
           .then(() => {
             setIsLoggedIn(false)
-            setSuccess(false)
           })
           .catch(() => {})
         setError('Your Tidal session has expired. Please log in again.')
@@ -178,7 +196,6 @@ function Home() {
     try {
       await logoutServerFn({ data: { sessionId: getOrCreateSessionId() } })
       setIsLoggedIn(false)
-      setSuccess(false)
     } catch (err) {
       setError('Logout failed')
     } finally {
@@ -244,45 +261,28 @@ function Home() {
                 <LogOut className="w-5 h-5" /> Logout
               </Button>
             </div>
-            {success && importedTracks.length > 0 && (
+            {progress && (
               <div className="mt-8">
                 <div className="text-white mb-4">
                   <div className="text-xl font-bold">
                     Created "{playlistTitle.trim()}"
                   </div>
-                  {copiedCount < totalCount ? (
-                    <div>
-                      Copied {copiedCount} out of {totalCount}, some tracks may
-                      not be available on Tidal.
-                    </div>
-                  ) : (
-                    <div>All {totalCount} tracks copied successfully!</div>
-                  )}
-                </div>
-                <div className="bg-gray-800 p-4 rounded-lg max-w-md mx-auto">
-                  {importedTracks.map((track, index) => {
-                    const [artist, title] = track.name.split(' - ')
-                    return (
+                  <div>
+                    Copying tracks: {progress.current} / {progress.total}
+                    <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
                       <div
-                        key={index}
-                        className="flex items-center mb-2 last:mb-0"
-                      >
-                        {track.cover && (
-                          <img
-                            src={track.cover}
-                            alt="Album cover"
-                            className="w-12 h-12 rounded mr-3"
-                          />
-                        )}
-                        <div className="text-left">
-                          <div className="text-white font-semibold">
-                            {title}
-                          </div>
-                          <div className="text-gray-400 text-sm">{artist}</div>
-                        </div>
+                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(progress.current / progress.total) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                    {isComplete && (
+                      <div className="mt-2 text-green-400">
+                        All {progress.total} tracks copied successfully!
                       </div>
-                    )
-                  })}
+                    )}
+                  </div>
                 </div>
               </div>
             )}
