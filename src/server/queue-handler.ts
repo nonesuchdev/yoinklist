@@ -9,6 +9,7 @@ export interface QueueMessage {
 }
 
 export async function handleQueueMessage(batch: Array<any>, env: any) {
+  console.log(`Processing queue batch with ${batch.length} messages`)
   for (const message of batch) {
     const data = message.body as QueueMessage
     const lastPollKey = `last_poll:${data.playlistId}`
@@ -86,6 +87,7 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
             `Error processing track ${track.artist} - ${track.title}:`,
             error,
           )
+          throw error // Re-throw to fail the queue message
         }
         // Continue to next track or stop?
         // For now, continue, but perhaps break if auth error
