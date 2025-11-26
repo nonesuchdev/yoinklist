@@ -44,32 +44,55 @@ export async function handleQueueMessage(batch: Array<any>, env: any) {
 
       const trackStart = Date.now()
       console.log('Processing track:', track)
-      const searchStart = Date.now()
-      const result = await searchTidalTrack(
-        `${track.artist} ${track.title}`,
-        data.accessToken,
-      )
-      console.log(`search track: ${Date.now() - searchStart}ms`)
-      console.log('Search result:', result)
-      if (result) {
-        console.log('Adding track to playlist:', data.playlistId, result.uri)
-        const addStart = Date.now()
-        await addTracksToTidalPlaylist(
-          data.playlistId,
-          [result.uri],
+      try {
+        const searchStart = Date.now()
+        const result = await searchTidalTrack(
+          `${track.artist} ${track.title}`,
           data.accessToken,
         )
-        console.log(`add track: ${Date.now() - addStart}ms`)
-        console.log('Track added successfully')
-        processedCount++
-        // Update progress in KV
-        await env.SESSIONS_KV.put(
-          `progress:${data.playlistId}`,
-          processedCount.toString(),
-        )
-        console.log('Updated progress to:', processedCount)
-      } else {
-        console.log('Track not found, skipping')
+        console.log(`search track: ${Date.now() - searchStart}ms`)
+        console.log('Search result:', result)
+        if (result) {
+          console.log('Adding track to playlist:', data.playlistId, result.uri)
+          const addStart = Date.now()
+          await addTracksToTidalPlaylist(
+            data.playlistId,
+            [result.uri],
+            data.accessToken,
+          )
+          console.log(`add track: ${Date.now() - addStart}ms`)
+          console.log('Track added successfully')
+          processedCount++
+          // Update progress in KV
+          await env.SESSIONS_KV.put(
+            `progress:${data.playlistId}`,
+            processedCount.toString(),
+          )
+          console.log('Updated progress to:', processedCount)
+        } else {
+          console.log('Track not found, skipping')
+        }
+      } catch (error: any) {
+        const isAuthError =
+          error.message &&
+          (error.message.includes('Expired token') ||
+            error.message.includes('UNAUTHORIZED'))
+        if (isAuthError) {
+          console.log(
+            `Skipping track due to auth error: ${track.artist} - ${track.title}`,
+          )
+        } else {
+          console.error(
+            `Error processing track ${track.artist} - ${track.title}:`,
+            error,
+          )
+        }
+        // Continue to next track or stop?
+        // For now, continue, but perhaps break if auth error
+        if (isAuthError) {
+          console.log('Stopping batch due to auth error')
+          break
+        }
       }
       console.log(`process track: ${Date.now() - trackStart}ms`)
     }

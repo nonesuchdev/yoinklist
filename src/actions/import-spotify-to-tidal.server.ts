@@ -125,7 +125,13 @@ export const importSpotifyToTidal = createServerFn()
         totalTracks: tracksToProcess.length,
       }
     } catch (error: any) {
-      console.error('Import error:', error)
+      const isAuthError =
+        error.message &&
+        (error.message.includes('Expired token') ||
+          error.message.includes('UNAUTHORIZED'))
+      if (!isAuthError) {
+        console.error('Import error:', error)
+      }
       throw new Error(error.message || 'Import failed')
     }
   })
