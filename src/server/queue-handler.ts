@@ -5,13 +5,43 @@ export interface QueueMessage {
   tracks: Array<{ artist: string; title: string }>
   accessToken: string
   playlistId: string
+  sessionId: string
 }
 
 export async function handleQueueMessage(batch: Array<any>, env: any) {
   for (const message of batch) {
     const data = message.body as QueueMessage
-    let processedCount = 0
+    const lastPollKey = `last_poll:${data.playlistId}`
+    const lastPollStr = await env.SESSIONS_KV.get(lastPollKey)
+    const lastPoll = lastPollStr ? parseInt(lastPollStr) : 0
+    const now = Date.now()
+    const timeoutMs = 10 * 60 * 1000 // 10 minutes
+
+    if (now - lastPoll > timeoutMs) {
+      console.log(
+        `Skipping processing for playlist ${data.playlistId} due to inactivity (last poll: ${new Date(lastPoll).toISOString()})`,
+      )
+      continue
+    }
+
+    // Get current progress
+    const progressKey = `progress:${data.playlistId}`
+    const currentStr = await env.SESSIONS_KV.get(progressKey)
+    let processedCount = parseInt(currentStr || '0')
+
     for (const track of data.tracks) {
+      // Check again before each track in case polling stopped during processing
+      const currentLastPollStr = await env.SESSIONS_KV.get(lastPollKey)
+      const currentLastPoll = currentLastPollStr
+        ? parseInt(currentLastPollStr)
+        : 0
+      if (now - currentLastPoll > timeoutMs) {
+        console.log(
+          `Stopping processing for playlist ${data.playlistId} due to inactivity during batch`,
+        )
+        break
+      }
+
       const trackStart = Date.now()
       console.log('Processing track:', track)
       const searchStart = Date.now()

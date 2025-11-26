@@ -106,6 +106,7 @@ export const importSpotifyToTidal = createServerFn()
         tracks: tracksToProcess,
         accessToken,
         playlistId,
+        sessionId,
       })
       console.log(`enqueue job: ${Date.now() - enqueueStart}ms`)
 

@@ -175,7 +175,12 @@ function Home() {
         playlistId: result.playlistId,
       })
     } catch (err: any) {
-      if (err.message && err.message.includes('session expired')) {
+      if (
+        err.message &&
+        (err.message.includes('session expired') ||
+          err.message.includes('Expired token') ||
+          err.message.includes('UNAUTHORIZED'))
+      ) {
         logoutServerFn({ data: { sessionId: getOrCreateSessionId() } })
           .then(() => {
             setIsLoggedIn(false)
