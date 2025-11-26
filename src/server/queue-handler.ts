@@ -7,19 +7,20 @@ export interface QueueMessage {
   playlistId: string
 }
 
-export async function handleQueueMessage(batch: Array<QueueMessage>, env: any) {
+export async function handleQueueMessage(batch: Array<any>, env: any) {
   for (const message of batch) {
+    const data = message.body as QueueMessage
     try {
       const result = await searchTidalTrack(
-        `${message.track.artist} ${message.track.title}`,
-        message.accessToken,
+        `${data.track.artist} ${data.track.title}`,
+        data.accessToken,
       )
       if (result) {
         // Add to playlist
         await addTracksToTidalPlaylist(
-          message.playlistId,
+          data.playlistId,
           [result.uri],
-          message.accessToken,
+          data.accessToken,
         )
       }
     } catch (error) {

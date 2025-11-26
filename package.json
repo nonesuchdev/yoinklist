@@ -3,14 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "wrangler dev --port 3000",
     "build": "vite build",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
     "deploy": "npm run build && wrangler deploy",
-    "preview": "npm run build && vite preview",
+    "preview": "npm run build && wrangler preview",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

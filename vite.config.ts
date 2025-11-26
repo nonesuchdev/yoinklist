@@ -19,6 +19,9 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  ssr: {
+    target: 'webworker',
+  },
   build: {
     rollupOptions: {
       external: ['cloudflare:workers'],

@@ -1,10 +1,15 @@
-// @ts-ignore: Nitro build output has no types
-import nitroApp from '../../.output/server/index.mjs'
+// @ts-ignore: TanStack Start server entry
+import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { handleQueueMessage } from './queue-handler'
 
+const serverEntry = createServerEntry({
+  fetch(request) {
+    return handler.fetch(request)
+  },
+})
+
 export default {
-  // @ts-ignore: Cloudflare types
-  fetch: nitroApp.localFetch,
+  ...serverEntry,
   // @ts-ignore: Cloudflare types
   queue: async (batch, env) => {
     await handleQueueMessage(batch.messages, env)
